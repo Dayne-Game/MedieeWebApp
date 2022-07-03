@@ -104,8 +104,6 @@ const getUsers = asyncHandler(async (req, res) => {
       ...keyword,
     }).select("-password").limit(pageSize).skip(pageSize * (page - 1));
 
-    console.log(users);
-
     res.json({users, page, pages: Math.ceil(count / pageSize)});
   } else if (req.user.isAdmin === true && req.user.isOwner === false) {
     const count = await User.countDocuments({ $or: [{ owner: req.user.owner }], ...keyword });
