@@ -1,0 +1,33 @@
+{
+  "name": "application",
+  "version": "1.0.0",
+  "description": "Document Management System for Care Facilities",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "server": "nodemon backend/server"
+  },
+  "keywords": [
+    "Resthome",
+    "Care",
+    "Facilties"
+  ],
+  "author": "Dayne Game, Michelle Buyn",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "colors": "^1.4.0",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-async-handler": "^1.1.4",
+    "express-router": "^0.0.1",
+    "express-validator": "^6.12.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.13.5",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  }
+}
