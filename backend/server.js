@@ -8,6 +8,7 @@ import connectDB from "./config/db.js";
 
 import userRoutes from "./routes/userRoutes.js";
 import residentRoutes from "./routes/residentRoutes.js";
+import resetPasswordRoutes from "./routes/resetPasswordRoutes.js";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use(express.json());
 
 app.use("/api/users", userRoutes);
 app.use("/api/residents", residentRoutes);
+app.use("/api/password-reset", resetPasswordRoutes);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "/frontend/build")));
