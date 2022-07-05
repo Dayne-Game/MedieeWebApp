@@ -8,11 +8,14 @@ import asyncHandler from "express-async-handler";
 // @route   POST /api/password-reset
 // @access  Public
 const sendPasswordReset = asyncHandler(async (req, res) => {
-  try {
-    const user = await User.findOne({ email: req.body.email });
-    if (!user)
-      return res.status(400).send("user with given email doesn't exist");
+  const user = await User.findOne({ email: req.body.email });
 
+  if (!user) {
+    res.status(400);
+    throw new Error("user with given email doesn't exist");
+  }
+
+  try {
     let token = await Token.findOne({ userId: user._id });
     if (!token) {
       token = await new Token({
@@ -21,7 +24,7 @@ const sendPasswordReset = asyncHandler(async (req, res) => {
       }).save();
     }
 
-    const link = `${process.env.BASE_URL}/password-reset/${user._id}/${token.token}`;
+    const link = `${process.env.BASE_URL}/auth/password-reset/${user._id}/${token.token}`;
     await sendEmail(user.email, "Password reset", link);
 
     res.send("password reset link sent to your email account");

@@ -25,6 +25,9 @@ import {
   USER_DETAILS_REQUEST,
   USER_DETAILS_RESET,
   USER_DETAILS_SUCCESS,
+  USER_PASSWORD_RESET_FAIL,
+  USER_PASSWORD_RESET_REQUEST,
+  USER_PASSWORD_RESET_SUCCESS,
 } from "../constants/userConstants";
 
 export const login = (email, password) => async (dispatch) => {
@@ -39,7 +42,11 @@ export const login = (email, password) => async (dispatch) => {
       },
     };
 
-    const { data } = await axios.post("/api/users/login", { email, password }, config);
+    const { data } = await axios.post(
+      "/api/users/login",
+      { email, password },
+      config
+    );
 
     dispatch({
       type: USER_LOGIN_SUCCESS,
@@ -50,7 +57,10 @@ export const login = (email, password) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: USER_LOGIN_FAIL,
-      payload: error.response && error.response.data.message ? error.response.data.message : error.message,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
     });
   }
 };
@@ -74,7 +84,11 @@ export const register = (name, email, password) => async (dispatch) => {
       },
     };
 
-    const { data } = await axios.post("/api/users/owner", { name, email, password }, config);
+    const { data } = await axios.post(
+      "/api/users/owner",
+      { name, email, password },
+      config
+    );
 
     dispatch({
       type: USER_REGISTER_SUCCESS,
@@ -90,48 +104,129 @@ export const register = (name, email, password) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: USER_REGISTER_FAIL,
-      payload: error.response && error.response.data.message ? error.response.data.message : error.message,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
     });
   }
 };
 
-export const registerStaff = (name, email, role, password, isAdmin) => async (dispatch, getState) => {
+export const registerStaff =
+  (name, email, role, password, isAdmin) => async (dispatch, getState) => {
+    try {
+      dispatch({
+        type: STAFF_REGISTER_REQUEST,
+      });
+
+      const {
+        userLogin: { userInfo },
+      } = getState();
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+          "Content-Type": "application/json",
+        },
+      };
+
+      const { data } = await axios.post(
+        "/api/users/staff",
+        { name, email, role, password, isAdmin },
+        config
+      );
+
+      dispatch({
+        type: STAFF_REGISTER_SUCCESS,
+        payload: data,
+      });
+    } catch (error) {
+      const message =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message;
+      if (message === "Not authorized, token failed") {
+        dispatch(logout());
+      }
+      dispatch({
+        type: STAFF_REGISTER_FAIL,
+        payload: message,
+      });
+    }
+  };
+
+export const resetPasswordRequest = (email) => async (dispatch) => {
   try {
     dispatch({
-      type: STAFF_REGISTER_REQUEST,
+      type: USER_PASSWORD_RESET_REQUEST,
     });
-
-    const {
-      userLogin: { userInfo },
-    } = getState();
 
     const config = {
       headers: {
-        Authorization: `Bearer ${userInfo.token}`,
         "Content-Type": "application/json",
       },
     };
 
-    const { data } = await axios.post("/api/users/staff", { name, email, role, password, isAdmin }, config);
+    const { data } = await axios.post("/api/password-reset", { email }, config);
 
     dispatch({
-      type: STAFF_REGISTER_SUCCESS,
+      type: USER_PASSWORD_RESET_SUCCESS,
       payload: data,
     });
   } catch (error) {
-    const message = error.response && error.response.data.message ? error.response.data.message : error.message;
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
     if (message === "Not authorized, token failed") {
       dispatch(logout());
     }
     dispatch({
-      type: STAFF_REGISTER_FAIL,
+      type: USER_PASSWORD_RESET_FAIL,
+      payload: message,
+    });
+  }
+};
+
+export const resetPassword = (id, token, password) => async (dispatch) => {
+  try {
+    dispatch({
+      type: USER_PASSWORD_RESET_REQUEST,
+    });
+
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    const { data } = await axios.post(
+      `/api/password-reset/${id}/${token}`,
+      { password },
+      config
+    );
+
+    dispatch({
+      type: USER_PASSWORD_RESET_SUCCESS,
+      payload: data,
+    });
+  } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    if (message === "Not authorized, token failed") {
+      dispatch(logout());
+    }
+    dispatch({
+      type: USER_PASSWORD_RESET_FAIL,
       payload: message,
     });
   }
 };
 
 export const listStaff =
-  (keyword = "", pageNumber = '') =>
+  (keyword = "", pageNumber = "") =>
   async (dispatch, getState) => {
     try {
       dispatch({
@@ -148,14 +243,20 @@ export const listStaff =
         },
       };
 
-      const { data } = await axios.get(`/api/users?keyword=${keyword}&pageNumber=${pageNumber}`, config);
+      const { data } = await axios.get(
+        `/api/users?keyword=${keyword}&pageNumber=${pageNumber}`,
+        config
+      );
 
       dispatch({
         type: STAFF_LIST_SUCCESS,
         payload: data,
       });
     } catch (error) {
-      const message = error.response && error.response.data.message ? error.response.data.message : error.message;
+      const message =
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message;
       if (message === "Not authorized, token failed") {
         dispatch(logout());
       }
@@ -186,7 +287,10 @@ export const deleteUser = (id) => async (dispatch, getState) => {
 
     dispatch({ type: USER_DELETE_SUCCESS });
   } catch (error) {
-    const message = error.response && error.response.data.message ? error.response.data.message : error.message;
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
     if (message === "Not authorized, token failed") {
       dispatch(logout());
     }
@@ -220,7 +324,10 @@ export const getUserDetails = (id) => async (dispatch, getState) => {
       payload: data,
     });
   } catch (error) {
-    const message = error.response && error.response.data.message ? error.response.data.message : error.message;
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
     if (message === "Not authorized, token failed") {
       dispatch(logout());
     }
@@ -256,7 +363,10 @@ export const updateUser = (user) => async (dispatch, getState) => {
 
     dispatch({ type: USER_DETAILS_RESET });
   } catch (error) {
-    const message = error.response && error.response.data.message ? error.response.data.message : error.message;
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
     if (message === "Not authorized, token failed") {
       dispatch(logout());
     }

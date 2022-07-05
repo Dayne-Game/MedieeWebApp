@@ -24,6 +24,10 @@ import {
   USER_UPDATE_RESET,
   USER_UPDATE_REQUEST,
   USER_UPDATE_FAIL,
+  USER_PASSWORD_RESET_FAIL,
+  USER_PASSWORD_RESET_REQUEST,
+  USER_PASSWORD_RESET_SUCCESS,
+  USER_PASSWORD_RESET_RESET,
 } from "../constants/userConstants";
 
 export const userLoginReducer = (state = {}, action) => {
@@ -35,6 +39,21 @@ export const userLoginReducer = (state = {}, action) => {
     case USER_LOGIN_FAIL:
       return { loading: false, error: action.payload };
     case USER_LOGOUT:
+      return {};
+    default:
+      return state;
+  }
+};
+
+export const userPasswordReset = (state = {}, action) => {
+  switch (action.type) {
+    case USER_PASSWORD_RESET_REQUEST:
+      return { loading: true };
+    case USER_PASSWORD_RESET_SUCCESS:
+      return { loading: false, success: true, reset: action.payload };
+    case USER_PASSWORD_RESET_FAIL:
+      return { loading: false, error: action.payload };
+    case USER_PASSWORD_RESET_RESET:
       return {};
     default:
       return state;
@@ -61,7 +80,12 @@ export const staffListReducer = (state = { users: [] }, action) => {
     case STAFF_LIST_REQUEST:
       return { loading: true, users: [] };
     case STAFF_LIST_SUCCESS:
-      return { loading: false, users: action.payload.users,  pages: action.payload.pages, page: action.payload.page};
+      return {
+        loading: false,
+        users: action.payload.users,
+        pages: action.payload.pages,
+        page: action.payload.page,
+      };
     case STAFF_LIST_FAIL:
       return { loading: false, error: action.payload };
     default:
